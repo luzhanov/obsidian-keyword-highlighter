@@ -24,7 +24,7 @@ export class SettingTab extends PluginSettingTab {
       },
     });
     this.component.$on("addKeyword", () =>
-      this.#addKeywordSetting(containerEl)
+      this.addKeywordSetting(containerEl)
     );
     this.component.$on("removeKeyword", (event) =>
       this.#removeKeywordSetting(event.detail.keyword)
@@ -32,7 +32,7 @@ export class SettingTab extends PluginSettingTab {
     this.component.$on("update", () => this.#updateComponent());
   }
 
-  #addKeywordSetting(container: HTMLElement, value?: string): void {
+  addKeywordSetting(container: HTMLElement, value?: string): void {
     const [foregroundColor, backgroundColor] = generateInitialColors(container);
     KeywordHighlighterPlugin.settings.keywords.push({
       keyword: value ?? "",

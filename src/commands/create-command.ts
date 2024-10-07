@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { App, Command, MarkdownView } from "obsidian";
+import {App, type Command, MarkdownView} from "obsidian";
 import { SettingTab } from "src/settings/setting-tab";
 
 const settingTabId = "keyword-highlighter";

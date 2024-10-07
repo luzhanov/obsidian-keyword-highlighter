@@ -23,7 +23,7 @@
     "svelte": "^4.2.15",
     "svelte-preprocess": "^5.1.4",
     "tslib": "2.6.2",
-    "typescript": "5.4.5"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "@codemirror/search": "^6.0.0"
