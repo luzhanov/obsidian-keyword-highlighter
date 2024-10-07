@@ -54,8 +54,13 @@ export class EditorHighlighter implements PluginValue {
     // Build decorations for each non-empty keyword in the settings
     KeywordHighlighterPlugin.settings.keywords
       .filter((keyword) => !!keyword.keyword)
-      .forEach((k) =>
-        newDecorations.push(...this.buildDecorationsForKeyword(view, k))
+      .forEach((k) => {
+          if (!k.isRegex) {
+            newDecorations.push(...this.buildDecorationsForKeyword(view, k))
+          } else {
+            newDecorations.push(...this.buildDecorationsForKeywordRegex(view, k))
+          }
+        }
       );
 
     // Sort decorations by their starting position
@@ -65,6 +70,17 @@ export class EditorHighlighter implements PluginValue {
     newDecorations.forEach((d) => builder.add(d.from, d.to, d.decoration));
 
     return builder.finish();
+  }
+
+  buildDecorationsForKeywordRegex(
+    view: EditorView,
+    keyword: KeywordStyle
+  ): NewDecoration[] {
+    const newDecorations: NewDecoration[] = [];
+
+    //todo: implement
+
+    return newDecorations;
   }
 
   /**

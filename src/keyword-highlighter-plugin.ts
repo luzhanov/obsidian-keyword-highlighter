@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
       fontModifiers: [],
       showColor: true,
       showBackgroundColor: true,
+      isRegex: true,
     },
     {
       keyword: "ADD",

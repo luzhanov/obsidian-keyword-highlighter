@@ -5,4 +5,5 @@ export type KeywordStyle = {
   fontModifiers?: string[];
   showColor?: boolean;
   showBackgroundColor?: boolean;
+  isRegex?: boolean;
 };

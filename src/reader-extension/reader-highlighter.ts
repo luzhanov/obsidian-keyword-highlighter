@@ -5,8 +5,20 @@ import { type KeywordStyle, getCssClasses } from "src/shared";
 export const readerHighlighter: MarkdownPostProcessor = (el: HTMLElement) => {
   KeywordHighlighterPlugin.settings.keywords
     .filter((keyword) => !!keyword.keyword)
-    .forEach((keyword) => replaceWithHighlight(el, keyword));
+    .forEach(
+      (keyword) => {
+        if (!keyword.isRegex) {
+          replaceWithHighlight(el, keyword)
+        } else {
+          replaceWithHighlightRegex(el, keyword)
+        }
+      }
+    );
 };
+
+function replaceWithHighlightRegex(node: Node, keyword: KeywordStyle) {
+  //todo: implement
+}
 
 /**
  * Replaces occurrences of a keyword in a DOM node with highlighted versions.
