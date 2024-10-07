@@ -51,19 +51,20 @@ export class EditorHighlighter implements PluginValue {
     const builder = new RangeSetBuilder<Decoration>();
     const newDecorations: NewDecoration[] = [];
 
-    // Build decorations for each non-empty keyword in the settings
+    // Iterate over each keyword in the settings
     KeywordHighlighterPlugin.settings.keywords
       .filter((keyword) => !!keyword.keyword)
       .forEach((k) => {
-          if (!k.isRegex) {
-            newDecorations.push(...this.buildDecorationsForKeyword(view, k))
-          } else {
-            newDecorations.push(...this.buildDecorationsForKeywordRegex(view, k))
-          }
+        if (!k.isRegex) {
+          // Handle plain keyword
+          newDecorations.push(...this.buildDecorationsForKeyword(view, k));
+        } else {
+          // Handle regex keyword
+          newDecorations.push(...this.buildDecorationsForKeywordRegex(view, k));
         }
-      );
+      });
 
-    // Sort decorations by their starting position
+    // Sort decorations by their starting position to optimize rendering
     newDecorations.sort((a, b) => a.from - b.from);
 
     // Add sorted decorations to the builder
@@ -72,13 +73,49 @@ export class EditorHighlighter implements PluginValue {
     return builder.finish();
   }
 
+  /**
+   * Builds decorations for a single regex keyword throughout the document
+   * @param view - The current EditorView
+   * @param keyword - The KeywordStyle object containing the regex pattern and its style
+   * @returns An array of NewDecoration objects for the given regex keyword
+   */
   buildDecorationsForKeywordRegex(
     view: EditorView,
     keyword: KeywordStyle
   ): NewDecoration[] {
     const newDecorations: NewDecoration[] = [];
 
-    //todo: implement
+    try {
+      // Create a RegExp object from the keyword pattern
+      // Ensure the 'g' flag is set for global searching
+     // const regex = new RegExp(keyword.keyword, "g");
+      const regex = new RegExp(`\\b${keyword.keyword}\\b`, "g");
+
+      // Get the full document text
+      const text = view.state.doc.toString();
+
+      let match: RegExpExecArray | null;
+      while ((match = regex.exec(text)) !== null) {
+        // Avoid zero-length matches to prevent infinite loops
+        if (match.index === regex.lastIndex) {
+          regex.lastIndex++;
+        }
+
+        // Determine the start and end positions of the match
+        const from = match.index;
+        const to = regex.lastIndex;
+
+        // Add the decoration for the matched range
+        newDecorations.push({
+          from,
+          to,
+          decoration: highlightMark(keyword),
+        });
+      }
+    } catch (e) {
+      console.error("Invalid regular expression:", keyword.keyword, e);
+      // Optionally, you can handle invalid regex patterns here
+    }
 
     return newDecorations;
   }
