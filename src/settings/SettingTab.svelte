@@ -23,6 +23,15 @@
   <div class="setting-item">
     <button on:click={() => dispatch("addKeyword")}>Add new keyword</button>
   </div>
+
+  <div class="setting-item">
+    <button on:click={() => dispatch("importSettings")}>Import settings</button>
+  </div>
+
+  <div class="setting-item">
+    <button on:click={() => dispatch("exportSettings")}>Export settings</button>
+  </div>
+
 </div>
 
 <style></style>
