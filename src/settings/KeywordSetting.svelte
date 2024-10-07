@@ -38,6 +38,14 @@
     <div>
       <input type="text" spellcheck="false" bind:value={keyword.keyword} />
     </div>
+    <div class="setting-item-description">
+      RegEx
+    </div>
+    <Checkbox
+      label="Use RegEx"
+      state={keyword.isRegex ?? true}
+      on:clicked={({ detail }) => (keyword.isRegex = detail.state)}
+    />
     <ToggleButtonGroup
       options={toggleButtonOptions}
       state={keyword.fontModifiers ?? []}
@@ -55,11 +63,6 @@
       on:clicked={({ detail }) => (keyword.showBackgroundColor = detail.state)}
     />
     <input type="color" bind:value={keyword.backgroundColor} />
-    <Checkbox
-      label="Use RegEx"
-      state={keyword.isRegex ?? true}
-      on:clicked={({ detail }) => (keyword.isRegex = detail.state)}
-    />
     <button
       class="clickable-icon"
       aria-label="Remove keyword"

@@ -87,25 +87,22 @@ export class EditorHighlighter implements PluginValue {
 
     try {
       // Create a RegExp object from the keyword pattern
-      // Ensure the 'g' flag is set for global searching
-     // const regex = new RegExp(keyword.keyword, "g");
-      const regex = new RegExp(`\\b${keyword.keyword}\\b`, "g");
+      // Use word boundaries to match whole words only
+      const regex = new RegExp(`\\b(${keyword.keyword})\\b`, "giu");
 
       // Get the full document text
       const text = view.state.doc.toString();
 
       let match: RegExpExecArray | null;
       while ((match = regex.exec(text)) !== null) {
-        // Avoid zero-length matches to prevent infinite loops
-        if (match.index === regex.lastIndex) {
-          regex.lastIndex++;
-        }
+        // Get the captured group (the actual matched word)
+        const matchedWord = match[1];
 
-        // Determine the start and end positions of the match
+        // Determine the start and end positions of the matched word
         const from = match.index;
-        const to = regex.lastIndex;
+        const to = from + matchedWord.length;
 
-        // Add the decoration for the matched range
+        // Add the decoration for the matched word
         newDecorations.push({
           from,
           to,

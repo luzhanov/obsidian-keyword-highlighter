@@ -41,6 +41,7 @@ export class SettingTab extends PluginSettingTab {
       fontModifiers: [],
       showColor: true,
       showBackgroundColor: true,
+      isRegex: false
     });
     this.#updateComponent();
   }

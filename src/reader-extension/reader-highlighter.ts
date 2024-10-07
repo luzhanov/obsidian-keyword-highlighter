@@ -17,7 +17,56 @@ export const readerHighlighter: MarkdownPostProcessor = (el: HTMLElement) => {
 };
 
 function replaceWithHighlightRegex(node: Node, keyword: KeywordStyle) {
-  //todo: implement
+  if (
+    node.nodeType === Node.ELEMENT_NODE &&
+    (<Element>node).classList.contains("kh-highlighted")
+  ) {
+    return;
+  } else if (node.nodeType === Node.TEXT_NODE && node.nodeValue) {
+    try {
+      const regex = new RegExp(`\\b(${keyword.keyword})\\b`, "giu");
+      const text = node.nodeValue;
+      const matches = Array.from(text.matchAll(regex));
+
+      if (matches.length > 0) {
+        // Parent cannot be null, so we use non-null assertion
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const parent = node.parentNode!;
+        let lastIndex = 0;
+
+        matches.forEach((match) => {
+          const matchedWord = match[1];
+          const index = match.index!;
+
+          if (index > lastIndex) {
+            parent.insertBefore(
+              document.createTextNode(text.substring(lastIndex, index)),
+              node
+            );
+          }
+
+          const highlight = getHighlightNode(parent, matchedWord, keyword);
+          parent.insertBefore(highlight, node);
+
+          lastIndex = index + matchedWord.length;
+        });
+
+        if (lastIndex < text.length) {
+          parent.insertBefore(
+            document.createTextNode(text.substring(lastIndex)),
+            node
+          );
+        }
+
+        parent.removeChild(node);
+      }
+    } catch (e) {
+      console.error("Invalid regular expression:", keyword.keyword, e);
+    }
+    return;
+  }
+  // If the node is not a text node, recursively process its children
+  node.childNodes.forEach((child) => replaceWithHighlightRegex(child, keyword));
 }
 
 /**

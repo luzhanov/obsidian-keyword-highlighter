@@ -13,7 +13,7 @@ interface PluginSettings {
 const DEFAULT_SETTINGS: PluginSettings = {
   keywords: [
     {
-      keyword: "TODO",
+      keyword: "TODO\\w*",
       color: "#000000",
       backgroundColor: "#A9CCE3",
       fontModifiers: [],
@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
       fontModifiers: [],
       showColor: true,
       showBackgroundColor: true,
+      isRegex: false,
     },
     {
       keyword: "FIXME",
@@ -36,6 +37,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
       fontModifiers: [],
       showColor: true,
       showBackgroundColor: true,
+      isRegex: false,
     },
   ],
 };
