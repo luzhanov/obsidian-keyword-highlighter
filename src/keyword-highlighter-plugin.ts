@@ -13,7 +13,7 @@ interface PluginSettings {
 const DEFAULT_SETTINGS: PluginSettings = {
   keywords: [
     {
-      keyword: "TODO\\w*",
+      keyword: "TODO\\.*",
       color: "#000000",
       backgroundColor: "#A9CCE3",
       fontModifiers: [],
@@ -22,13 +22,13 @@ const DEFAULT_SETTINGS: PluginSettings = {
       isRegex: true,
     },
     {
-      keyword: "ADD",
+      keyword: "туду\\.*",
       color: "#000000",
       backgroundColor: "#8DE3C2",
       fontModifiers: [],
       showColor: true,
       showBackgroundColor: true,
-      isRegex: false,
+      isRegex: true,
     },
     {
       keyword: "FIXME",

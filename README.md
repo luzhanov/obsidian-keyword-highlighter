@@ -29,3 +29,14 @@ Easy aswell, just hit the delete button (2).
 ## Installation
 
 This plugin can be accessed and installed directly from the Obsidian Community Plugin Store. Alternatively, for manual installation, simply download the required files and place them in your Obsidian vault's plugins folder.
+
+
+## Debugging
+
+In console (`ctrl-shift-i`)
+
+```
+app.plugins.plugins["keyword-highlighter-dev"].constructor
+
+
+```

@@ -16,6 +16,18 @@ export const readerHighlighter: MarkdownPostProcessor = (el: HTMLElement) => {
     );
 };
 
+/**
+ * Splits text into words considering UTF-8 characters
+ * Uses Unicode properties to identify letters and numbers across different scripts
+ */
+function splitIntoWords(text: string): string[] {
+  const splitWords = text.split(/[ ,.;\n\t]/);
+  const filteredWords = splitWords.filter(word => word.trim().length > 0);
+  const trimmedWords = filteredWords.map(word => word.trim());
+  return trimmedWords;
+}
+
+
 function replaceWithHighlightRegex(node: Node, keyword: KeywordStyle) {
   if (
     node.nodeType === Node.ELEMENT_NODE &&
@@ -24,36 +36,54 @@ function replaceWithHighlightRegex(node: Node, keyword: KeywordStyle) {
     return;
   } else if (node.nodeType === Node.TEXT_NODE && node.nodeValue) {
     try {
-      const regex = new RegExp(`\\b(${keyword.keyword})\\b`, "giu");
       const text = node.nodeValue;
-      const matches = Array.from(text.matchAll(regex));
+      const words = splitIntoWords(text);
+      const regex = new RegExp(`${keyword.keyword}`, "giu");
+
+      // Find all matching words and their positions in original text
+      const matches: { word: string; index: number }[] = [];
+      words.forEach(word => {
+
+        // Need to reset regex lastIndex since we're reusing it
+        regex.lastIndex = 0;
+
+        if (regex.test(word)) {
+
+          const startSearchIndex = matches.length > 0 ?
+            matches[matches.length - 1].index + matches[matches.length - 1].word.length :
+            0;
+
+          const wordIndex = text.indexOf(word, startSearchIndex);
+
+          if (wordIndex !== -1) {
+            matches.push({ word, index: wordIndex });
+          }
+        }
+      });
 
       if (matches.length > 0) {
-        // Parent cannot be null, so we use non-null assertion
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const parent = node.parentNode!;
         let lastIndex = 0;
 
-        matches.forEach((match) => {
-          const matchedWord = match[1];
-          const index = match.index!;
-
+        matches.forEach(({ word, index }) => {
           if (index > lastIndex) {
+            const beforeText = text.substring(lastIndex, index);
             parent.insertBefore(
-              document.createTextNode(text.substring(lastIndex, index)),
+              document.createTextNode(beforeText),
               node
             );
           }
 
-          const highlight = getHighlightNode(parent, matchedWord, keyword);
+          const highlight = getHighlightNode(parent, word, keyword);
           parent.insertBefore(highlight, node);
 
-          lastIndex = index + matchedWord.length;
+          lastIndex = index + word.length;
         });
 
         if (lastIndex < text.length) {
+          const remainingText = text.substring(lastIndex);
           parent.insertBefore(
-            document.createTextNode(text.substring(lastIndex)),
+            document.createTextNode(remainingText),
             node
           );
         }
@@ -83,7 +113,10 @@ function replaceWithHighlight(node: Node, keyword: KeywordStyle) {
     return;
   } else if (node.nodeType === Node.TEXT_NODE && node.nodeValue) {
     const searchText = `${keyword.keyword}`;
-    const index = node.nodeValue.indexOf(searchText);
+    const nodeText = node.nodeValue;
+
+    // Find the index using case-insensitive comparison
+    const index = nodeText.toLowerCase().indexOf(searchText.toLowerCase());
 
     // If the keyword is found in the text node
     if (index > -1) {
@@ -91,10 +124,13 @@ function replaceWithHighlight(node: Node, keyword: KeywordStyle) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const parent = node.parentNode!;
 
+      // Get the actual matched text from the original string to preserve original case
+      const matchedText = nodeText.substring(index, index + searchText.length);
+
       // Split the text node into before, highlight, and after parts
-      const beforeText = node.nodeValue.substring(0, index);
-      const afterText = node.nodeValue.substring(index + searchText.length);
-      const highlight = getHighlightNode(parent, searchText, keyword);
+      const beforeText = nodeText.substring(0, index);
+      const afterText = nodeText.substring(index + searchText.length);
+      const highlight = getHighlightNode(parent, matchedText, keyword);
 
       // Insert the new nodes in the correct order
       parent.insertBefore(document.createTextNode(beforeText), node);
