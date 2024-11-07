@@ -16,6 +16,47 @@ import type { KeywordStyle } from "src/shared";
 type NewDecoration = { from: number; to: number; decoration: Decoration };
 
 /**
+ * Splits text into words using simple delimiters
+ */
+function splitIntoWords(text: string): Array<{ word: string; index: number }> {
+  const result: Array<{ word: string; index: number }> = [];
+  let currentWord = '';
+  let currentWordStart = 0;
+
+  // Define delimiters
+  const delimiters = [' ', ',', '.', ';', '\n', '\t'];
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (delimiters.includes(char)) {
+      if (currentWord.trim().length > 0) {
+        result.push({
+          word: currentWord.trim(),
+          index: currentWordStart
+        });
+      }
+      currentWord = '';
+      currentWordStart = i + 1;
+    } else {
+      if (currentWord.length === 0) {
+        currentWordStart = i;
+      }
+      currentWord += char;
+    }
+  }
+
+  // Add the last word if it exists
+  if (currentWord.trim().length > 0) {
+    result.push({
+      word: currentWord.trim(),
+      index: currentWordStart
+    });
+  }
+
+  return result;
+}
+
+/**
  * EditorHighlighter class implements the PluginValue interface
  * It manages the highlighting of keywords in a CodeMirror editor
  */
@@ -86,29 +127,28 @@ export class EditorHighlighter implements PluginValue {
     const newDecorations: NewDecoration[] = [];
 
     try {
-      // Create a RegExp object from the keyword pattern
-      // Use word boundaries to match whole words only
-      const regex = new RegExp(`\\b(${keyword.keyword})\\b`, "giu");
-
       // Get the full document text
       const text = view.state.doc.toString();
 
-      let match: RegExpExecArray | null;
-      while ((match = regex.exec(text)) !== null) {
-        // Get the captured group (the actual matched word)
-        const matchedWord = match[1];
+      // Split text into words with their positions
+      const words = splitIntoWords(text);
 
-        // Determine the start and end positions of the matched word
-        const from = match.index;
-        const to = from + matchedWord.length;
+      // Create regex for matching
+      const regex = new RegExp(`${keyword.keyword}`, "giu");
 
-        // Add the decoration for the matched word
-        newDecorations.push({
-          from,
-          to,
-          decoration: highlightMark(keyword),
-        });
-      }
+      // Process each word
+      words.forEach(({ word, index }) => {
+        // Reset regex state
+        regex.lastIndex = 0;
+
+        if (regex.test(word)) {
+          newDecorations.push({
+            from: index,
+            to: index + word.length,
+            decoration: highlightMark(keyword),
+          });
+        }
+      });
     } catch (e) {
       console.error("Invalid regular expression:", keyword.keyword, e);
       // Optionally, you can handle invalid regex patterns here
@@ -128,20 +168,23 @@ export class EditorHighlighter implements PluginValue {
     keyword: KeywordStyle
   ): NewDecoration[] {
     const newDecorations: NewDecoration[] = [];
+    const text = view.state.doc.toString();
 
-    // Create a search cursor for the keyword
-    const cursor = new SearchCursor(view.state.doc, `${keyword.keyword}`);
+    // Split text into words with their positions
+    const words = splitIntoWords(text);
+    const searchText = keyword.keyword.toLowerCase();
 
-    // Find all occurrences of the keyword in the document
-    cursor.next();
-    while (!cursor.done) {
-      newDecorations.push({
-        from: cursor.value.from,
-        to: cursor.value.to,
-        decoration: highlightMark(keyword),
-      });
-      cursor.next();
-    }
+    // Process each word
+    words.forEach(({ word, index }) => {
+      if (word.toLowerCase() === searchText) {
+        newDecorations.push({
+          from: index,
+          to: index + word.length,
+          decoration: highlightMark(keyword),
+        });
+      }
+    });
+
     return newDecorations;
   }
 }
