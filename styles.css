@@ -1,5 +1,6 @@
 .kh-highlighted {
-  padding: 3px;
+  padding-left: 1px;
+  padding-right: 1px;
   border-radius: 3px;
   color: var(--kh-c);
   background-color: var(--kh-bgc);
