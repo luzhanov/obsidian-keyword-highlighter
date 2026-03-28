@@ -28,7 +28,44 @@ Easy aswell, just hit the delete button (2).
 
 ## Installation
 
-This plugin can be accessed and installed directly from the Obsidian Community Plugin Store. Alternatively, for manual installation, simply download the required files and place them in your Obsidian vault's plugins folder.
+
+### Build from source
+
+#### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- npm (bundled with Node.js)
+
+#### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/<your-username>/obsidian-keyword-highlighter.git
+   cd obsidian-keyword-highlighter
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Build the plugin:
+   ```bash
+   npm run build
+   ```
+   This runs TypeScript type-checking and then bundles everything with esbuild. The output files are `main.js`, `manifest.json`, and `styles.css`.
+
+   > For a development/watch build (auto-rebuilds on file changes), run `npm run dev` instead.
+
+4. Copy the output files to your vault's plugin folder:
+   ```
+   <your-vault>/.obsidian/plugins/keyword-highlighter/
+   ├── main.js
+   ├── manifest.json
+   └── styles.css
+   ```
+
+5. Restart Obsidian (or reload plugins) and enable **Keyword Highlighter** in **Settings → Community plugins**.
 
 
 ## Debugging
